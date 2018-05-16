@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+
+import argparse
+import os
+import sys
+
+# Quick'n'Dirty! Change!
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from gosum import GosumMain as go
+
+
+###
+#   Main script to start GOSUM
+###
+#
+#   COPYRIGHT DISCALIMER:
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+#
+#   Author: Tim Kahlke, tim.kahlke@audiotax.is
+#   Date:   May 2018
+#
+
+
+
+if __name__=="__main__":
+    parser = argparse.ArgumentParser(description="Gene Ontology Summarizer")
+    parser.add_argument("gene_list", help="List of genes")
+    parser.add_argument("annotation", help="List genes to GO or interpro annotaiton file")
+    parser.add_argument("obo", help="path to OBO file")
+
+    args = parser.parse_args()
+    gosum = go.Main()
+    gosum.run_gosum(args)
+
