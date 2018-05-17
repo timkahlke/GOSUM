@@ -12,7 +12,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 ############
 #
-#   Class for classification
+#   Class for reading obo files and providing data structures to work with 
 #
 ####
 #   COPYRIGHT DISCALIMER:
@@ -44,10 +44,12 @@ class Tree():
 
 
     def _init_trees(self):
-        self.biological_process = {}
-        self.molecular_function = {}
-        self.cellular_component = {}
+        self.trees = {'biological_process':{}, 'molecular_function':{},'cellular_component':{}}
         self._parse_obo()
+
+
+    def get_sub_tree(self,asp,n):
+        return self._get_sub(self.trees[asp],n)
 
 
     def _parse_obo(self):
@@ -58,50 +60,79 @@ class Tree():
         d = re.compile('^def:\s(.*)$')
         a = re.compile('^is_a:\s(GO:\d+)\s.*$')
         o = re.compile('^is_obsolete:\strue.*$')
-        children = []
+        children = set()
         tree = {}
+        self.term_hash = {}
 
         with open(self.obo_path,"r") as f:
             for line in f:
                 if i.match(line):
                     current_term = i.match(line).group(1)
+                    self.term_hash[current_term] = {}
                     if not current_term in tree:
-                        tree[current_term] = {'id':current_term}
+                        tree[current_term] = {}
                 elif n.match(line):
-                        tree[current_term]['name'] = n.match(line).group(1)
+                        self.term_hash[current_term]['name'] = n.match(line).group(1)
                 elif ns.match(line):
-                    tree[current_term]['namespace'] =ns.match(line).group(1)
+                    self.term_hash[current_term]['namespace'] =ns.match(line).group(1)
                 elif d.match(line):
-                    tree[current_term]['definition'] = d.match(line).group(1)
+                    self.term_hash[current_term]['definition'] = d.match(line).group(1)
                 elif a.match(line):
                     if not a.match(line).group(1) in tree:
                         tree[a.match(line).group(1)] = {}
-                    try:
-                        tree[a.match(line).group(1)]['child'][current_term] = tree[current_term] 
-                    except KeyError, e:
-                        tree[a.match(line).group(1)]['child'] = {}
-                        tree[a.match(line).group(1)]['child'][current_term] = tree[current_term]
-                    if not current_term in children:
-                        children.append(current_term)
+                    tree[a.match(line).group(1)][current_term] = tree[current_term] 
+                    children.add(current_term)
                 elif o.match(line):
-                    del tree[current_term]
+                    children.add(current_term)
+                    del self.term_hash[current_term]
                 else:
                     continue;
-      
+     
         for c in children:
             try:
                 del tree[c]
             except KeyError, e:
-                print(e)
+                print(" Can not delete " + str(e))
 
         for k in tree.keys():
-            if tree[k]['name'] == "biological_process":
-                self.biological_process = tree[k]
-            elif tree[k]['name'] == "molecular_function":
-                self.molecular_function = tree[k]
-            elif tree[k]['name'] == "cellular_component":
-                self.cellular_component = tree[k]
+            if self.term_hash[k]['name'] == "biological_process":
+                self.trees['biological_process'] = tree[k]
+            elif self.term_hash[k]['name'] == "molecular_function":
+                self.trees['molecular_function'] = tree[k]
+            elif self.term_hash[k]['name'] == "cellular_component":
+                self.trees['cellular_component'] = tree[k]
             else:
                 print("Unknown name for 3 main classes: " + k)
                 exit(1)
+            del self.term_hash[k]
+            self._walk_lvls(0,tree[k])
+          
 
+    def _walk_lvls(self,lvl,tree):
+        for k in tree.keys():
+            self.term_hash[k]['index'] = lvl + 1
+            self._walk_lvls(lvl + 1,tree[k])
+
+
+    def _get_sub(self,tree,node):
+        for k in tree:
+            if k == node:
+                return tree[k]
+            else:
+                t =  self._get_sub(tree[k],node)
+                if t:
+                    return t
+            
+
+    def is_child(self,c,tree):
+        for k in tree:
+            if k == c:
+                return 1
+            else:
+                if self.is_child(c,tree[k]):
+                    return 1 
+
+
+    def get_lvl_terms(self,lvl,asp):
+        terms = [x for x in self.term_hash if self.term_hash[x]['index'] == lvl and self.term_hash[x]['namespace'] == asp]
+        return terms

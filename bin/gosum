@@ -10,7 +10,7 @@ from gosum import GosumMain as go
 
 
 ###
-#   Main script to start GOSUM
+#   Main script to run GOSUM
 ###
 #
 #   COPYRIGHT DISCALIMER:
@@ -40,7 +40,10 @@ if __name__=="__main__":
     parser.add_argument("gene_list", help="List of genes")
     parser.add_argument("annotation", help="List genes to GO or interpro annotaiton file")
     parser.add_argument("obo", help="path to OBO file")
-
+    parser.add_argument("level", help="Level of Gene Ontology to count", type=int)
+    parser.add_argument("aspect", help="Which GO aspect to use, molecular_function, cellular_component or biological_process", choices=["biological_process", "molecular_function", "cellular_component"])
+    parser.add_argument("-c", "--complete", help="If set all GO terms of the given level will be rwitten to output file even if no counts found")
+    parser.add_argument("output", help="Name of tab output file")
     args = parser.parse_args()
     gosum = go.Main()
     gosum.run_gosum(args)

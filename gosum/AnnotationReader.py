@@ -12,7 +12,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 ############
 #
-#   Class for classification
+#   Class for reading tab and interpro gff files
 #
 ####
 #   COPYRIGHT DISCALIMER:
@@ -42,8 +42,8 @@ class Reader():
         self.path = path
         self.g2g = {}
         self._parse_annotation()
-        print(self.g2g.keys())
-        exit(0)
+
+
     def _parse_annotation(self):
         with open(self.path, "r") as f:
             if f.readline().startswith("#"):
@@ -70,3 +70,8 @@ class Reader():
                 s = line.replace("\n","").split("\t")
                 self.g2g[s[0]] = set(split(",",s[1]))
 
+    def get_annotation(self,gene):
+        try:
+            return self.g2g[gene]
+        except KeyError, e:
+            return 0

@@ -29,9 +29,10 @@ import os
 #   Date:   May 2018
 #
 
-def readList(path):
-    list = []
+def read_list(path):
+    glist = []
     with open(path,"r") as f:
         for line in f:
-            list.append(line.replace("\n","").replace(" ",""))
+            glist.append(line.replace("\n","").replace(" ",""))
+    return glist
 

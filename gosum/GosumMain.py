@@ -34,7 +34,7 @@ from gosum import Utils
 #
 #
 #   Author: Tim Kahlke, tim.kahlke@audiotax.is
-#   Date:   April 2017
+#   Date:   May 2018
 #
 
 
@@ -50,5 +50,41 @@ class Main():
             go_tree = GOTree.Tree(args.obo)
             reader = ar.Reader(args.annotation)
             gene_list = Utils.read_list(args.gene_list)
-            print(gene_list)
+            go_list = self.get_terms(reader,gene_list)
+            lvl_terms = go_tree.get_lvl_terms(args.level,args.aspect)
+            
+            summary = {}
+            for x in lvl_terms:
+                summary[x] = 0
+                sub_tree = go_tree.get_sub_tree(args.aspect,x)
+                for g in go_list:
+                    if go_tree.is_child(g,sub_tree):
+                        summary[x]+=1
+            self.write_output(summary,args,go_tree)
+
+
+        def write_output(self,s,args,g):
+            out = open(args.output,"w")
+            klist = s.keys()
+            klist.sort()
+            for x in klist:
+                if s[x] or args.complete:
+                    out.write("%s\t%s\t%s\n" % (x,g.term_hash[x]['name'],s[x]))
+
+            out.close()
+
+
+        def get_terms(self,reader,gl):
+            term_list = set()
+            for g in gl:
+                annotation = reader.get_annotation(g)
+                if annotation:
+                    term_list = term_list.union(annotation)
+                else:
+                    print("No annotation found for gene " + g)
+            return term_list
+
+
+
+
 
