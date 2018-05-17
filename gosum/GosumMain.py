@@ -57,6 +57,9 @@ class Main():
             for x in lvl_terms:
                 summary[x] = 0
                 sub_tree = go_tree.get_sub_tree(args.aspect,x)
+                # x below given level, i.e., no sub_tree
+                if not sub_tree:
+                    continue
                 for g in go_list:
                     if go_tree.is_child(g,sub_tree):
                         summary[x]+=1

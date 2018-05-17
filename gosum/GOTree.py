@@ -42,7 +42,6 @@ class Tree():
         self.obo_path = obo_path
         self._init_trees()
 
-
     def _init_trees(self):
         self.trees = {'biological_process':{}, 'molecular_function':{},'cellular_component':{}}
         self._parse_obo()
