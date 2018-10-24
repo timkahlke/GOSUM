@@ -1,6 +1,8 @@
 # GOSUM
 Gene Ontology Summarizer
 
+[![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/AdvancedTwigTec.svg?style=social&label=Follow%20%40AdvancedTwigTec)](https://twitter.com/AdvancedTwigTec)
+
 Python2 tool to summarize GO terms of a given list of genes at a given GO level.
 
 Clone the repo and call the bin/gosum to execute. Takes
